@@ -15,7 +15,7 @@
 
 7. Crear emulador en android studio
 
-	- Ir a virtual device configuration y crear un nuevo emulador por ejemplo Pixel 6 con las configuraciones por defecto
+	- Ir a virtual device configuration y crear un nuevo emulador, por ejemplo Pixel 6 con las configuraciones por defecto
 	
 8. Dentro de la carpeta del proyecto ejecutar
 	npm install
