@@ -1,27 +1,25 @@
-/**
- * NFCity_Explorer App
- * https://github.com/tu-usuario-de-github/NFCity_Explorer
- */
-
+// App.tsx
 import React from 'react';
 import { SafeAreaView, StatusBar, useColorScheme } from 'react-native';
-
-// Importación de la navegación y las pantallas
+import { NavigationContainer } from '@react-navigation/native';
 import Navigator from './src/navigation/Navigator';
 
-function App(): React.ReactElement {
+const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
-    backgroundColor: isDarkMode ? '#333' : '#FFF', // Colores simplificados
+    flex: 1,
+    backgroundColor: isDarkMode ? '#333' : '#FFF',
   };
 
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <Navigator />
+      <NavigationContainer>
+        <Navigator />
+      </NavigationContainer>
     </SafeAreaView>
   );
-}
+};
 
 export default App;
