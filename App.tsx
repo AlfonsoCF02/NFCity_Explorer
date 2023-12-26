@@ -6,12 +6,15 @@ import Navigator from './src/navigation/Navigator';
 import NfcManager, { NfcEvents, Ndef } from 'react-native-nfc-manager';
 import { NfcData } from './src/types/nfcTypes'; // Asegúrate de que la ruta de importación sea correcta
 
+
 // Importa los datos NFC, asegurándote de que la ruta sea correcta
 import rawData from './src/data/nfcData.json';
 const nfcData: NfcData = rawData as NfcData;
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
+
+/*  COMO NO FUNCIONA EL NFC EN EL EMULADOR COMENTAR
 
   useEffect(() => {
     async function initNfc() {
@@ -64,6 +67,8 @@ const App = () => {
       NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
     };
   }, []);
+
+*/
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? '#333' : '#FFF' }}>
