@@ -3,8 +3,19 @@ import { View, StyleSheet, Button, Platform, PermissionsAndroid, Alert } from 'r
 import MapView, { Marker, Region } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 
-const HomeScreen = ({ navigation }) => {
-  const [currentRegion, setCurrentRegion] = useState<Region | null>(null); // Especifica el tipo de Region
+// Tipos para las props de HomeScreen
+type HomeScreenProps = {
+  navigation: any; // Reemplaza 'any' con el tipo de navegación adecuado si es posible
+};
+
+// Define la estructura de un error de geolocalización
+interface GeoLocationError {
+  code: number;
+  message: string;
+}
+
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  const [currentRegion, setCurrentRegion] = useState<Region | null>(null);
 
   useEffect(() => {
     requestLocationPermission();
@@ -28,8 +39,10 @@ const HomeScreen = ({ navigation }) => {
         } else {
           Alert.alert('Location permission denied');
         }
-      } catch (err) {
-        Alert.alert('Permission error', err.toString()); // Convierte err a string
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          Alert.alert('Permission error', err.message);
+        }
       }
     } else {
       getOneTimeLocation();
@@ -40,13 +53,13 @@ const HomeScreen = ({ navigation }) => {
     Geolocation.getCurrentPosition(
       (position) => {
         setCurrentRegion({
-            latitude: currentRegion?.latitude || 0,
-            longitude: currentRegion?.longitude || 0,
-            latitudeDelta: 1, // Aumenta este valor
-            longitudeDelta: 1, // Aumenta este valor
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
         });
       },
-      (error) => {
+      (error: GeoLocationError) => {
         Alert.alert('Location error', error.message);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
@@ -62,10 +75,10 @@ const HomeScreen = ({ navigation }) => {
       {currentRegion && (
         <MapView
           style={styles.map}
-          initialRegion={currentRegion} // Usa initialRegion en lugar de region
+          initialRegion={currentRegion}
           showsUserLocation
         >
-          <Marker coordinate={currentRegion} />
+          <Marker coordinate={currentRegion as Region} />
         </MapView>
       )}
     </View>
@@ -84,7 +97,6 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
-    marginTop: 0, // O añade un margen en la parte superior del mapa
   },
 });
 
