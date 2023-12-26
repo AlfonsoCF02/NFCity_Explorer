@@ -4,11 +4,7 @@ import { Alert, SafeAreaView, StatusBar, useColorScheme } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import Navigator from './src/navigation/Navigator';
 import NfcManager, { NfcEvents, Ndef } from 'react-native-nfc-manager';
-
-// Tipos para los datos de NFC, asumiendo que tus claves son números en forma de string
-interface NfcData {
-  [key: string]: string;
-}
+import { NfcData } from './src/types/nfcTypes'; // Asegúrate de que la ruta de importación sea correcta
 
 // Importa los datos NFC, asegurándote de que la ruta sea correcta
 import rawData from './src/data/nfcData.json';
