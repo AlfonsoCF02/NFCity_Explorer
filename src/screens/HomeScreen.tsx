@@ -2,17 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Button, Platform, PermissionsAndroid, Alert } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
+import { HomeScreenProps } from '../types/navigationTypes';
+import { GeoLocationError } from '../types/errorTypes'; 
 
-// Tipos para las props de HomeScreen
-type HomeScreenProps = {
-  navigation: any; // Reemplaza 'any' con el tipo de navegación adecuado si es posible
-};
-
-// Define la estructura de un error de geolocalización
-interface GeoLocationError {
-  code: number;
-  message: string;
-}
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [currentRegion, setCurrentRegion] = useState<Region | null>(null);
@@ -65,6 +57,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
     );
   };
+  
 
   return (
     <View style={styles.container}>

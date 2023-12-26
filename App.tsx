@@ -14,32 +14,54 @@ const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
   useEffect(() => {
-    NfcManager.start();
-
-    const handleNfcRead = (event: any) => {
-      const ndefRecords = event.ndefMessage;
-      if (ndefRecords) {
-        const id = Ndef.text.decodePayload(ndefRecords[0].payload);
-        const description = nfcData[id];
-        if (description) {
-          Alert.alert('NFC Tag ID', `ID: ${id}`, [
-            { text: 'OK' },
-            { text: 'Show Description', onPress: () => Alert.alert('Description', description) },
-          ]);
+    async function initNfc() {
+      const supported = await NfcManager.isSupported();
+      if (supported) {
+        const enabled = await NfcManager.isEnabled();
+        if (!enabled) {
+          // NFC está soportado pero no activado
+          Alert.alert(
+            "NFC is not enabled",
+            "Please enable NFC to use this application.",
+            [
+              // Opcionalmente, puedes dirigir al usuario a la configuración de NFC
+              { text: "Go to Settings", onPress: () => NfcManager.goToNfcSetting() },
+              { text: "OK" }
+            ]
+          );
         } else {
-          Alert.alert('NFC Tag ID', 'No description found for this tag.');
+          // NFC está activado y listo para usarse
+          NfcManager.start();
         }
+      } else {
+        // NFC no está soportado
+        Alert.alert("NFC not supported", "This device doesn't support NFC.");
       }
-    };
+    }
 
-    // Suscribirse al evento de lectura NFC
-    NfcManager.setEventListener(NfcEvents.DiscoverTag, handleNfcRead);
+    initNfc();
+
+    NfcManager.setEventListener(NfcEvents.DiscoverTag, (event: any) => {
+      const handleNfcRead = (event: any) => {
+        const ndefRecords = event.ndefMessage;
+        if (ndefRecords) {
+          const id = Ndef.text.decodePayload(ndefRecords[0].payload);
+          const description = nfcData[id];
+          if (description) {
+            Alert.alert('NFC Tag ID', `ID: ${id}`, [
+              { text: 'OK' },
+              { text: 'Show Description', onPress: () => Alert.alert('Description', description) },
+            ]);
+          } else {
+            Alert.alert('NFC Tag ID', 'No description found for this tag.');
+          }
+        }
+      };
+    });
 
     // Limpiar el listener al desmontar
     return () => {
       NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
-      // Si la función stop existe, usarla, de lo contrario comentar la siguiente línea
-      // NfcManager.stop();
     };
   }, []);
 
@@ -54,4 +76,3 @@ const App = () => {
 };
 
 export default App;
-
