@@ -80,9 +80,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginTop: 10,
+    marginBottom: 10, // Añade un margen en la parte inferior
   },
   map: {
     flex: 1,
+    marginTop: 0, // O añade un margen en la parte superior del mapa
   },
 });
 
