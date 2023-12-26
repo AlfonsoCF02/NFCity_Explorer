@@ -1,9 +1,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Permisos de Internet y Geolocalización -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Permisos para la geolocalización -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Permisos para NFC -->
+    <uses-permission android:name="android.permission.NFC" />
+
+    <!-- Asegúrate de que NFC esté disponible en el dispositivo -->
+    <uses-feature
+        android:name="android.hardware.nfc"
+        android:required="true" />
 
     <application
         android:name=".MainApplication"
@@ -24,9 +32,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <!-- Agrega la clave de API de Google Maps aquí -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCNGrup5drBpGkTJjRn0pQeBojx99EsfQM" />
+            android:value="AIzaSyCNGrup5drBpGkTJjRn0pQeBojx99EsfQM"/>
     </application>
 </manifest>

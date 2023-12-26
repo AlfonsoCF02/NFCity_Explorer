@@ -1,90 +1,61 @@
-// src/screens/HomeScreen.tsx
-import React, { useEffect, useState } from 'react';
-import { View, StyleSheet, Button, Platform, PermissionsAndroid, Alert } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import Geolocation from '@react-native-community/geolocation';
+// App.js
+import React, { useEffect } from 'react';
+import { Alert, SafeAreaView, StatusBar, useColorScheme } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import Navigator from './src/navigation/Navigator';
+import NfcManager, { NfcEvents, Ndef } from 'react-native-nfc-manager';
 
-const HomeScreen = ({ navigation }) => {
-  const [currentRegion, setCurrentRegion] = useState(null);
+// Tipos para los datos de NFC, asumiendo que tus claves son números en forma de string
+interface NfcData {
+  [key: string]: string;
+}
+
+// Importa los datos NFC, asegurándote de que la ruta sea correcta
+import rawData from './src/data/nfcData.json';
+const nfcData: NfcData = rawData as NfcData;
+
+const App = () => {
+  const isDarkMode = useColorScheme() === 'dark';
 
   useEffect(() => {
-    if (Platform.OS === 'ios') {
-      getOneTimeLocation();
-    } else {
-      requestLocationPermission();
-    }
+    NfcManager.start();
+
+    const handleNfcRead = (event: any) => {
+      const ndefRecords = event.ndefMessage;
+      if (ndefRecords) {
+        const id = Ndef.text.decodePayload(ndefRecords[0].payload);
+        const description = nfcData[id];
+        if (description) {
+          Alert.alert('NFC Tag ID', `ID: ${id}`, [
+            { text: 'OK' },
+            { text: 'Show Description', onPress: () => Alert.alert('Description', description) },
+          ]);
+        } else {
+          Alert.alert('NFC Tag ID', 'No description found for this tag.');
+        }
+      }
+    };
+
+    // Suscribirse al evento de lectura NFC
+    NfcManager.setEventListener(NfcEvents.DiscoverTag, handleNfcRead);
+
+    // Limpiar el listener al desmontar
+    return () => {
+      NfcManager.setEventListener(NfcEvents.DiscoverTag, null);
+      // Si la función stop existe, usarla, de lo contrario comentar la siguiente línea
+      // NfcManager.stop();
+    };
   }, []);
 
-  const requestLocationPermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: 'Location Permission',
-          message: 'This app needs access to your location',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
-        },
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        getOneTimeLocation();
-      } else {
-        Alert.alert('Location permission denied');
-      }
-    } catch (err) {
-      console.warn(err);
-    }
-  };
-
-  const getOneTimeLocation = () => {
-    Geolocation.getCurrentPosition(
-      (position) => {
-        setCurrentRegion({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          latitudeDelta: 0.005,
-          longitudeDelta: 0.005,
-        });
-      },
-      (error) => {
-        console.warn(error.message);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-    );
-  };
-
   return (
-    <View style={styles.container}>
-      <View style={styles.buttonContainer}>
-        <Button title="Crear Ruta" onPress={() => console.log('Crear Ruta')} />
-        <Button title="Cargar Ruta" onPress={() => console.log('Cargar Ruta')} />
-      </View>
-      {currentRegion && (
-        <MapView
-          style={styles.map}
-          region={currentRegion}
-          showsUserLocation
-        >
-          <Marker coordinate={currentRegion} />
-        </MapView>
-      )}
-    </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? '#333' : '#FFF' }}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
+      <NavigationContainer>
+        <Navigator />
+      </NavigationContainer>
+    </SafeAreaView>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 10,
-  },
-  map: {
-    flex: 1,
-  },
-});
+export default App;
 
-export default HomeScreen;
