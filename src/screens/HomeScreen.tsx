@@ -71,7 +71,7 @@ const HomeScreen: React.FC<{ navigation: HomeScreenNavigationProp }> = ({ naviga
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
-        <Button title="Crear Ruta" onPress={() => console.log('Crear Ruta')} />
+        <Button title="Crear Ruta" onPress={() => navigation.navigate('CreateRoute')} />
         <Button title="Cargar Ruta" onPress={() => console.log('Cargar Ruta')} />
         <Button title="Log Out" onPress={signOut} />
       </View>
