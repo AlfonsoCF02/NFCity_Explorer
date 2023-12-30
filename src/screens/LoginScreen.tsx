@@ -38,7 +38,7 @@ const LoginScreen: React.FC = () => {
         source={require('../assets/images/logo.png')}
         style={styles.logo}
       />
-      <GoogleSigninButton onPress={signIn} style={styles.googleButton} />
+      <Text style={styles.modalText}>Logeate o Regístrate en nuestra App</Text>
       <GoogleSigninButton onPress={signIn} style={styles.googleButton} />
       <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.aboutUsButton}>
         <Text style={styles.aboutUsText}>About Us</Text>
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     width: 400, // Aumenta el tamaño del logo si es necesario
     height: 400,
     resizeMode: 'contain',
-    marginBottom: 90, // Espacio entre el logo y los botones
+    marginBottom: 80, // Espacio entre el logo y los botones
   },
   googleButton: {
     width: 192,
