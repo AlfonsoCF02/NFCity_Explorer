@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "997526284403-iv9mbv7g7rsa6kujbpls2t3mcp2ackqh.apps.googleusercontent.com",
+          "client_id": "997526284403-a0f2vps9csfc523o0e2r683u4mm453qf.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.nfcity_explorer",
-            "certificate_hash": "8a329641fac9e78259db07327c08d3543ca1fb64"
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
           }
         },
         {
