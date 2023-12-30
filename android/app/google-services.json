@@ -12,7 +12,20 @@
           "package_name": "com.nfcity_explorer"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "997526284403-iv9mbv7g7rsa6kujbpls2t3mcp2ackqh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nfcity_explorer",
+            "certificate_hash": "8a329641fac9e78259db07327c08d3543ca1fb64"
+          }
+        },
+        {
+          "client_id": "997526284403-5g38gvc8u4h82g5i9uv5i165r59jlh5l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBalbYoICG2DpxKBEqxYnZ5c0AtRzo751E"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "997526284403-5g38gvc8u4h82g5i9uv5i165r59jlh5l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
