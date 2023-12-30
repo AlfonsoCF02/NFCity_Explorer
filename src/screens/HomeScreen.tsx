@@ -81,6 +81,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#ADD8E6', // Aplicando color de fondo azul clarito a todo el contenedor
   },
   buttonContainer: {
     flexDirection: 'row',
