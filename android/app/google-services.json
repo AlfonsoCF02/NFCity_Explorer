@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "72759559374",
-    "project_id": "nfcity-7f5e4",
-    "storage_bucket": "nfcity-7f5e4.appspot.com"
+    "project_number": "997526284403",
+    "project_id": "nfcity-explorer-409611",
+    "storage_bucket": "nfcity-explorer-409611.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:72759559374:android:726e5f6be04134e95c7c9f",
+        "mobilesdk_app_id": "1:997526284403:android:deff759eeffc8483bfa206",
         "android_client_info": {
           "package_name": "com.nfcity_explorer"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCNFK--lK3AN_Gnsuv9EUq5ewjeA7XPwiM"
+          "current_key": "AIzaSyBalbYoICG2DpxKBEqxYnZ5c0AtRzo751E"
         }
       ],
       "services": {
