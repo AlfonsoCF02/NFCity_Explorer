@@ -2,11 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Button, Platform, PermissionsAndroid, Alert } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import { HomeScreenProps } from '../types/navigationTypes';
+import { HomeScreenNavigationProp } from '../types/navigationTypes';
 import { GeoLocationError } from '../types/errorTypes'; 
 
-
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+const HomeScreen: React.FC<{ navigation: HomeScreenNavigationProp }> = ({ navigation }) => {
   const [currentRegion, setCurrentRegion] = useState<Region | null>(null);
 
   useEffect(() => {

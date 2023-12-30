@@ -1,22 +1,14 @@
+// src/types/navigationTypes.ts
 import { StackNavigationProp } from '@react-navigation/stack';
 
 export type RootStackParamList = {
-    Login: undefined;
-    Home: undefined;
-    Map: undefined; // Añade otros parámetros si es necesario
+  Login: undefined;
+  Home: undefined;
+  Map: undefined;
+  // ... otros nombres de rutas y parámetros ...
 };
 
-
-export type HomeScreenProps = {
-    navigation: any; // Usar 'Home' si es la ruta de HomeScreen.
-};
-
-
-export type LoginScreenProps = {
-    navigation: any;
-};
-
-/* Tambien se puede 
-export type HomeScreenProps = {
-    navigation: any; // Aquí deberías reemplazar 'any' por el tipo específico de tu objeto de navegación.
-};*/
+// Definir los tipos de navegación específicos para cada pantalla
+export type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
+export type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+// ... otros tipos de navegación si es necesario ...
