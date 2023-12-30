@@ -13,11 +13,11 @@ import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/go
 import { useNavigation } from '@react-navigation/native';
 import { LoginScreenNavigationProp } from '../types/navigationTypes';
 
+
 const LoginScreen: React.FC = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Asegúrate de configurar el GoogleSignin con tu webClientId
   GoogleSignin.configure({
     webClientId: '997526284403-5g38gvc8u4h82g5i9uv5i165r59jlh5l.apps.googleusercontent.com',
   });
@@ -35,9 +35,10 @@ const LoginScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <Image
-        source={require('../assets/images/logo.png')} // Asegúrate de que la ruta al logo es correcta
+        source={require('../assets/images/logo.png')}
         style={styles.logo}
       />
+      <GoogleSigninButton onPress={signIn} style={styles.googleButton} />
       <GoogleSigninButton onPress={signIn} style={styles.googleButton} />
       <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.aboutUsButton}>
         <Text style={styles.aboutUsText}>About Us</Text>
@@ -65,6 +66,7 @@ const LoginScreen: React.FC = () => {
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -73,17 +75,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#ADD8E6', // Este es un color de fondo genérico, ajusta según tu logo
   },
   logo: {
-    width: 150,
-    height: 150,
-    marginBottom: 32,
+    width: 400, // Aumenta el tamaño del logo si es necesario
+    height: 400,
+    resizeMode: 'contain',
+    marginBottom: 90, // Espacio entre el logo y los botones
   },
   googleButton: {
     width: 192,
     height: 48,
-    marginBottom: 20,
+    marginBottom: 15, // Espacio entre los botones de Google
   },
   aboutUsButton: {
-    marginTop: 20,
+    marginTop: 80,
   },
   aboutUsText: {
     color: '#0000ff',
