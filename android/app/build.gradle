@@ -82,6 +82,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+        //Claves de las API que van en el Manifest.xml
+        resValue "string", "google_maps_api_key", project.env.get("GOOGLE_MAPS_API_KEY")
     }
     signingConfigs {
         debug {

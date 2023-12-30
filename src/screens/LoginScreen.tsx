@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Image, TouchableOpacity, Text, Modal, SafeAreaView, } from 'react-native';
 import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
+import Config from "react-native-config";
 import { useNavigation } from '@react-navigation/native';
 import { LoginScreenNavigationProp } from '../types/navigationTypes';
 
@@ -10,7 +11,7 @@ const LoginScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
 
   GoogleSignin.configure({
-    webClientId: '997526284403-5g38gvc8u4h82g5i9uv5i165r59jlh5l.apps.googleusercontent.com',
+    webClientId: Config.GOOGLE_MAPS_API_KEY,
   });
 
   const signIn = async () => {
