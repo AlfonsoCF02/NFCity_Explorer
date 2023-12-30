@@ -6,6 +6,7 @@ export type RootStackParamList = {
   Home: undefined;
   Map: undefined;
   CreateRoute: undefined;
+  OptimiceRoute: undefined;
   // ... otros nombres de rutas y parámetros ...
 };
 
@@ -13,4 +14,5 @@ export type RootStackParamList = {
 export type LoginScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Login'>;
 export type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
 export type CreateRouteScreenNavigationProp = StackNavigationProp<RootStackParamList, 'CreateRoute'>; // Añade esto para la navegación de CreateRoute
+export type OptimiceRouteScreenNavigationProp = StackNavigationProp<RootStackParamList, 'OptimiceRoute'>;
 // ... otros tipos de navegación si es necesario ...

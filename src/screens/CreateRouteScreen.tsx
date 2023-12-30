@@ -4,6 +4,12 @@ import { View, StyleSheet, Button, Alert } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+//No furula
+
+//Muestra un mapa y se ponen puntos, luego se guarda en el telefono o drive (boton)
+// posteriormente se puede optimizar (boton) -> lo que hace es guardarlo igual que si le damos a guardar
+// y redirige lo manda a optimice route screen que se puede importar aqui
+
 type MarkerType = {
   latitude: number;
   longitude: number;
