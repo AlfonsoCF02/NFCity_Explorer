@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Button, Platform, PermissionsAndroid, Alert } from 'react-native';
 import MapView, { Marker, Region } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
+import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
 import { HomeScreenNavigationProp } from '../types/navigationTypes';
 import { GeoLocationError } from '../types/errorTypes'; 
 
@@ -57,12 +58,22 @@ const HomeScreen: React.FC<{ navigation: HomeScreenNavigationProp }> = ({ naviga
     );
   };
   
+  const signOut = async () => {
+    try {
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
+      navigation.navigate('Login'); // Redirige a la pantalla de inicio de sesión
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.buttonContainer}>
         <Button title="Crear Ruta" onPress={() => console.log('Crear Ruta')} />
         <Button title="Cargar Ruta" onPress={() => console.log('Cargar Ruta')} />
+        <Button title="Log Out" onPress={signOut} />
       </View>
       {currentRegion && (
         <MapView

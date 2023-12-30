@@ -1,18 +1,9 @@
 // src/screens/LoginScreen.tsx
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-  Text,
-  Modal,
-  SafeAreaView,
-} from 'react-native';
-import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import { View, StyleSheet, Image, TouchableOpacity, Text, Modal, SafeAreaView, } from 'react-native';
+import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-google-signin/google-signin';
 import { useNavigation } from '@react-navigation/native';
 import { LoginScreenNavigationProp } from '../types/navigationTypes';
-
 
 const LoginScreen: React.FC = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
