@@ -5,6 +5,7 @@ import { GoogleSignin, GoogleSigninButton, statusCodes } from '@react-native-goo
 import Config from "react-native-config";
 import { useNavigation } from '@react-navigation/native';
 import { LoginScreenNavigationProp } from '../types/navigationTypes';
+//import GDrive from 'react-native-google-drive-api-wrapper';
 
 const LoginScreen: React.FC = () => {
   const navigation = useNavigation<LoginScreenNavigationProp>();
@@ -18,6 +19,9 @@ const LoginScreen: React.FC = () => {
     try {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
+      const token = (await GoogleSignin.getTokens()).accessToken;
+      //GDrive.setAccessToken(this.state.accToken);  
+      //GDrive.init(); // Initialize the GDrive
       navigation.navigate('Home');
     } catch (error) {
       console.error(error);
