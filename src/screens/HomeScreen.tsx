@@ -128,12 +128,32 @@ const HomeScreen: React.FC<{ navigation: HomeScreenNavigationProp }> = ({ naviga
       >
         <View style={styles.centeredModalView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>NFCity Explorer is an app that allows you to...</Text>
+          
+            <Text style={styles.modalTitleText}>En NFCity Explorer ofrecemos las siguientes opciones:</Text>
+
+              {/* Lista de opciones */}
+              <View style={styles.optionList}>
+                <Text style={styles.optionItem}>
+                  <Text style={styles.optionTitle}>• Crear Ruta: </Text>
+                  En esta opción se podrán crear marcadores en un mapa que posteriormente se podrán guardar en el dispositivo y optimizar para su recorrido.
+                </Text>
+                <Text style={styles.optionItem}>
+                  <Text style={styles.optionTitle}>• Optimizar Ruta: </Text>
+                  En esta opción se podrá optimizar una ruta ya existente en el dispositivo para generar su recorrido óptimo.
+                </Text>
+                <Text style={styles.optionItem}>
+                  <Text style={styles.optionTitle}>• Log Out: </Text>
+                  Permite desloguearse de la aplicación.
+                </Text>
+                {/* Añade más opciones según sea necesario */}
+              </View>
+
+
             <TouchableOpacity
               style={styles.closeModalButton}
               onPress={() => setModalVisible(false)}
             >
-              <Text style={styles.closeModalButtonText}>Close</Text>
+              <Text style={styles.closeModalButtonText}>Cerrar</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -223,6 +243,23 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  modalTitleText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  optionList: {
+    alignItems: 'flex-start',
+    marginBottom: 15,
+  },
+  optionItem: {
+    fontSize: 16,
+    textAlign: 'justify', // Asegura que el texto esté justificado
+  },
+  optionTitle: {
+    fontWeight: 'bold', // Hace que el título de cada opción esté en negrita
   },
 });
 
