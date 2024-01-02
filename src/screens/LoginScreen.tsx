@@ -48,7 +48,7 @@ const LoginScreen: React.FC = () => {
       >
         <View style={styles.centeredModalView}>
           <View style={styles.modalView}>
-            <Text style={styles.modalText}>NFCity Explorer is an app that allows you to...</Text>
+            <Text style={styles.modalText}>NFCity Explorer es una app que permite crear rutas con hasta 23 ubicaciones distintas así como buscar en camino optimo entre dichas ubicaciones y guiarte por ellas. Además, en dichas ubicaciones puedes leer un tag NFC y obtener información reelevante.</Text>
             <TouchableOpacity
               style={styles.closeModalButton}
               onPress={() => setModalVisible(false)}

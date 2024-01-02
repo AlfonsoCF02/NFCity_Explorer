@@ -89,10 +89,10 @@ const HomeScreen: React.FC<{ navigation: HomeScreenNavigationProp }> = ({ naviga
   return (
     <View style={styles.container}>
       <Text style={styles.welcomeText}>Bienvenido {userName}</Text>
-
+      
       <View style={styles.buttonContainer}>
         <Button title="Crear Ruta" onPress={() => navigation.navigate('CreateRoute')} />
-        <Button title="Optimizar Ruta" onPress={() => console.log('Cargar Ruta')} />
+        <Button title="Optimizar Ruta" onPress={() => navigation.navigate('OptimiceRoute')} />
         <Button title="Log Out" onPress={signOut} />
       </View>
 
