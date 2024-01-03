@@ -36,6 +36,7 @@ const LoginScreen: React.FC = () => {
       />
       <Text style={styles.modalText}>Logeate o Regístrate en nuestra App</Text>
       <GoogleSigninButton onPress={signIn} style={styles.googleButton} />
+      
       <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.aboutUsButton}>
         <Text style={styles.aboutUsText}>About Us</Text>
       </TouchableOpacity>

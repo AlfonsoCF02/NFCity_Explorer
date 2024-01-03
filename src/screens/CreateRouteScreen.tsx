@@ -1,25 +1,78 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Button, Alert, Modal, TextInput } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, Button, Alert, Modal, TextInput, Text, Platform, PermissionsAndroid, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import MapView, { Marker, Region, LatLng } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Geolocation from '@react-native-community/geolocation';
 import RNFS from 'react-native-fs';
-import DocumentPicker from 'react-native-document-picker';
 import Share from 'react-native-share';
-
-type MarkerType = {
-  latitude: number;
-  longitude: number;
-  name: string;
-};
+import DocumentPicker from 'react-native-document-picker';
+import { GeoLocationError } from '../types/errorTypes';
+import { MarkerType, MapPressEvent } from '../types/navigationTypes';
 
 const CreateRouteScreen: React.FC = () => {
   const [markers, setMarkers] = useState<MarkerType[]>([]);
   const [markerName, setMarkerName] = useState('');
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [tempMarker, setTempMarker] = useState<MarkerType | null>(null);
+  const [currentRegion, setCurrentRegion] = useState<Region | undefined>(undefined);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [mapName, setMapName] = useState('');
 
-  const handleMapPress = (e) => {
+  useEffect(() => {
+    requestLocationPermission();
+  }, []);
+
+  const requestLocationPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Location Permission',
+            message: 'This app needs access to your location.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          },
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          getOneTimeLocation();
+        } else {
+          Alert.alert('Location permission denied');
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          Alert.alert('Permission error', err.message);
+        }
+      }
+    } else {
+      getOneTimeLocation();
+    }
+  };
+
+  const getOneTimeLocation = () => {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        setCurrentRegion({
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        });
+      },
+      (error: GeoLocationError) => {
+        Alert.alert('Location error', error.message);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+    );
+  };
+
+  const handleMapPress = (e: MapPressEvent) => {
+    if (markers.length >= 23) {
+      Alert.alert('Límite alcanzado', 'No puedes agregar más de 23 marcadores.');
+      return;
+    }
+  
     setTempMarker({
       latitude: e.nativeEvent.coordinate.latitude,
       longitude: e.nativeEvent.coordinate.longitude,
@@ -57,21 +110,32 @@ const CreateRouteScreen: React.FC = () => {
   };
 
 
-const saveRoute = async () => {
-  try {
-    const kmlData = convertMarkersToKML(markers);
-    const path = `${RNFS.DownloadDirectoryPath}/ruta.kml`;
-    await RNFS.writeFile(path, kmlData, 'utf8');
-    Alert.alert('Ruta Guardada', `La ruta ha sido guardada con éxito en: ${path}`);
-  } catch (error) {
-    Alert.alert('Error al guardar la ruta', error.message);
-  }
-};
+  const saveRoute = async () => {
+    if (!mapName.trim()) {
+      Alert.alert('Error', 'Por favor, introduzca un nombre para el mapa.');
+      return;
+    }
+    try {
+      const kmlData = convertMarkersToKML(markers);
+      const fileName = `${mapName.replace(/\s+/g, '_')}.kml`;
+      const path = `${RNFS.DownloadDirectoryPath}/${fileName}`;
+      await RNFS.writeFile(path, kmlData, 'utf8');
+      Alert.alert('Ruta Guardada', `La ruta ha sido guardada con éxito en: ${path}`);
+    } catch (error) {
+      const err = error as Error;
+      Alert.alert('Permission error', err.message);
+    }    
+  };
 
   const shareRoute = async () => {
-    const kmlData = convertMarkersToKML(markers);
-    const filePath = `${RNFS.TemporaryDirectoryPath}/ruta.kml`;
+    if (!mapName.trim()) {
+      Alert.alert('Error', 'Por favor, introduzca un nombre para el mapa.');
+      return;
+    }
     try {
+      const kmlData = convertMarkersToKML(markers);
+      const fileName = `${mapName.replace(/\s+/g, '_')}.kml`;
+      const filePath = `${RNFS.TemporaryDirectoryPath}/${fileName}`;
       await RNFS.writeFile(filePath, kmlData, 'utf8');
       await Share.open({
         url: `file://${filePath}`,
@@ -83,22 +147,67 @@ const saveRoute = async () => {
     }
   };
   
+  const handleMarkerPress = (markerIndex: number) => {
+    // Actualiza el estado para excluir el marcador en el que se hizo clic
+    setMarkers(currentMarkers => currentMarkers.filter((_, index) => index !== markerIndex));
+  };
+
   return (
     <View style={styles.container}>
+
+      <TextInput
+              placeholder="Nombre del mapa"
+              value={mapName}
+              onChangeText={setMapName}
+              style={styles.mapNameInput}
+            />
+
       <MapView
         style={styles.map}
+        initialRegion={currentRegion}
         onPress={handleMapPress}
+        showsUserLocation={true}
       >
         {markers.map((marker, index) => (
           <Marker
             key={index}
             coordinate={{ latitude: marker.latitude, longitude: marker.longitude }}
             title={marker.name}
+            onPress={() => handleMarkerPress(index)} // Añade el gestor de eventos aquí
           />
         ))}
       </MapView>
-      <Button title="Guardar Ruta" onPress={saveRoute} />
-      <Button title="Compartir Ruta" onPress={shareRoute} />
+
+      <View style={styles.buttonContainer}>
+        <Button title="Guardar Ruta" onPress={saveRoute} />
+        
+
+      <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.aboutUsButton}>
+        <Text style={styles.aboutUsText}>Info</Text>
+      </TouchableOpacity>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.centeredModalView}>
+          <View style={styles.modal2View}>
+            <Text style={styles.modalText}>En esta sección se pueden crear (guardar y compartir) mapas de ruta en formato .kml. Para ello, primero dale un nombre al mapa (no podrás guardar hasta que lo hagas); posteriormente toca en el punto donde quieras poner un marcador (puedes poner hasta 23!) y especifica su nombre. Una vez terminado puedes guardar o compartir tu mapa!. Una vez tengas el mapa, puedes optimizar la ruta, con nuestro optimizador.</Text>
+            <TouchableOpacity
+              style={styles.closeModalButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.closeModalButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+        
+        <Button title="Compartir Ruta" onPress={shareRoute} />
+      </View>
+
       <Modal
         animationType="slide"
         transparent={true}
@@ -107,6 +216,14 @@ const saveRoute = async () => {
       >
         <View style={styles.centeredView}>
           <View style={styles.modalView}>
+            {/* Botón de cierre con una X en la esquina */}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setIsDialogVisible(false)}
+            >
+              <Text style={styles.closeButtonText}>X</Text>
+            </TouchableOpacity>
+            
             <TextInput
               placeholder="Nombre del marcador"
               value={markerName}
@@ -117,6 +234,8 @@ const saveRoute = async () => {
           </View>
         </View>
       </Modal>
+
+
     </View>
   );
 };
@@ -128,6 +247,11 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 10, // espacio vertical alrededor de los botones
   },
   centeredView: {
     flex: 1,
@@ -149,6 +273,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    position: 'relative', // Importante para posicionar absolutamente el botón de cierre
+  },
+  closeButton: {
+    position: 'absolute',
+    top: -10,
+    right: 10,
+    backgroundColor: 'lightgrey',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: 'black',
+    fontWeight: 'bold',
   },
   textInput: {
     height: 40,
@@ -158,6 +298,71 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 20,
   },
+  mapNameInput: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    padding: 10,
+    margin: 10,
+    borderRadius: 5,
+  },
+  // Estilos boton de info
+
+  aboutUsButton: {
+    marginTop: 10,
+    marginBottom: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  aboutUsText: {
+    color: '#0000ff',
+    textDecorationLine: 'underline',
+  },
+  centeredModalView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 22,
+  },
+  modal2View: {
+    margin: 20,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 35,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  closeModalButton: {
+    backgroundColor: '#2196F3',
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  closeModalButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalTitleText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+
+  // Fin estilos boton info
+
 });
 
 export default CreateRouteScreen;
