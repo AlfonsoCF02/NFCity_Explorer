@@ -20,13 +20,19 @@ const LoginScreen: React.FC = () => {
       await GoogleSignin.hasPlayServices();
       const userInfo = await GoogleSignin.signIn();
       const token = (await GoogleSignin.getTokens()).accessToken;
-      //GDrive.setAccessToken(this.state.accToken);  
-      //GDrive.init(); // Initialize the GDrive
-      navigation.navigate('Home');
+      // GDrive.setAccessToken(token);  
+      // GDrive.init(); // Initialize the GDrive
+      
+      // Aquí se resetea la pila de navegación para que Home sea la nueva raíz
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }], // Asegúrate de que 'Home' es el nombre de la ruta a tu pantalla principal en tu stack navigator
+      });
     } catch (error) {
       console.error(error);
     }
   };
+  
 
   return (
     <SafeAreaView style={styles.container}>

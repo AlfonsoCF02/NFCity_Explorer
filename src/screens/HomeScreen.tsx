@@ -80,11 +80,17 @@ const HomeScreen: React.FC<{ navigation: HomeScreenNavigationProp }> = ({ naviga
     try {
       await GoogleSignin.revokeAccess();
       await GoogleSignin.signOut();
-      navigation.navigate('Login');
+      // Aquí usamos reset para limpiar la pila de navegación y establecer la pantalla de inicio de sesión como la nueva raíz
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+      });
     } catch (error) {
-      console.error(error);
+      console.error('Error signing out: ', error);
+      Alert.alert('Error', 'An error occurred while signing out.');
     }
   };
+  
 
   return (
     <View style={styles.container}>
