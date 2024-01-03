@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, Button, Alert, Modal, TextInput, Text, Platform, PermissionsAndroid, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import { View, StyleSheet, Button, Alert, Modal, TextInput, Text, Platform, PermissionsAndroid, 
+  TouchableOpacity, Image, SafeAreaView, BackHandler } from 'react-native';
 import MapView, { Marker, Region, LatLng } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Geolocation from '@react-native-community/geolocation';
@@ -7,9 +8,10 @@ import RNFS from 'react-native-fs';
 import Share from 'react-native-share';
 import DocumentPicker from 'react-native-document-picker';
 import { GeoLocationError } from '../types/errorTypes';
-import { MarkerType, MapPressEvent } from '../types/navigationTypes';
+import { CreateRouteScreenNavigationProp, MarkerType, MapPressEvent } from '../types/navigationTypes';
 
-const CreateRouteScreen: React.FC = () => {
+
+const CreateRouteScreen: React.FC<{ navigation: CreateRouteScreenNavigationProp }> = ({ navigation }) => {
   const [markers, setMarkers] = useState<MarkerType[]>([]);
   const [markerName, setMarkerName] = useState('');
   const [isDialogVisible, setIsDialogVisible] = useState(false);
@@ -17,10 +19,36 @@ const CreateRouteScreen: React.FC = () => {
   const [currentRegion, setCurrentRegion] = useState<Region | undefined>(undefined);
   const [modalVisible, setModalVisible] = useState(false);
   const [mapName, setMapName] = useState('');
+  const [routeSaved, setRouteSaved] = useState(false);
+
 
   useEffect(() => {
     requestLocationPermission();
   }, []);
+  
+  useEffect(() => {
+    const backAction = () => {
+      if (markers.length > 0 && !routeSaved) {
+        Alert.alert('Guardar Ruta', 'Tienes una ruta sin guardar. ¿Deseas salir sin guardar?', [
+          {
+            text: 'Cancelar',
+            onPress: () => null,
+            style: 'cancel',
+          },
+          { text: 'Salir', onPress: () => navigation.goBack() },
+        ]);
+        return true;
+      }
+  
+      // Si no hay marcadores o la ruta ya fue guardada
+      return false;
+    };
+  
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', backAction);
+  
+    return () => backHandler.remove();
+  }, [markers, routeSaved, navigation]);
+  
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
@@ -87,6 +115,7 @@ const CreateRouteScreen: React.FC = () => {
       setMarkerName(''); // Limpia el nombre para el siguiente marcador
       setIsDialogVisible(false); // Oculta el modal
       setTempMarker(null); // Limpia el marcador temporal
+      setRouteSaved(false);
     } else {
       Alert.alert('Error', 'Por favor, ingrese un nombre para el marcador.');
     }
@@ -120,10 +149,12 @@ const CreateRouteScreen: React.FC = () => {
       const fileName = `${mapName.replace(/\s+/g, '_')}.kml`;
       const path = `${RNFS.DownloadDirectoryPath}/${fileName}`;
       await RNFS.writeFile(path, kmlData, 'utf8');
+      setRouteSaved(true);
       Alert.alert('Ruta Guardada', `La ruta ha sido guardada con éxito en: ${path}`);
     } catch (error) {
       const err = error as Error;
       Alert.alert('Permission error', err.message);
+      setRouteSaved(false);
     }    
   };
 
@@ -142,8 +173,12 @@ const CreateRouteScreen: React.FC = () => {
         type: 'application/vnd.google-earth.kml+xml',
         title: 'Compartir Ruta KML',
       });
+      setRouteSaved(true);
     } catch (error) {
-      console.error('Error compartiendo la ruta:', error);
+      //console.error('Error compartiendo la ruta:', error);
+      //Alert.alert('No compartido', 'El usuario ha cancelado el proceso de compartición.');
+      //Mejor el segundo. Si no se pone nada, simplemente se sigue adelante
+      setRouteSaved(false);
     }
   };
   

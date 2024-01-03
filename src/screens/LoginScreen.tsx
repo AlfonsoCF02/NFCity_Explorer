@@ -7,8 +7,8 @@ import { useNavigation } from '@react-navigation/native';
 import { LoginScreenNavigationProp } from '../types/navigationTypes';
 //import GDrive from 'react-native-google-drive-api-wrapper';
 
-const LoginScreen: React.FC = () => {
-  const navigation = useNavigation<LoginScreenNavigationProp>();
+
+const LoginScreen: React.FC<{ navigation: LoginScreenNavigationProp }> = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   GoogleSignin.configure({
@@ -26,7 +26,7 @@ const LoginScreen: React.FC = () => {
       // Aquí se resetea la pila de navegación para que Home sea la nueva raíz
       navigation.reset({
         index: 0,
-        routes: [{ name: 'Home' }], // Asegúrate de que 'Home' es el nombre de la ruta a tu pantalla principal en tu stack navigator
+        routes: [{ name: 'Home' }], 
       });
     } catch (error) {
       console.error(error);
