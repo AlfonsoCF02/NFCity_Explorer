@@ -2,18 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Button, Alert, Modal, Text, TextInput, TouchableOpacity, Platform } from 'react-native';
 import MapView, { Marker, LatLng } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import DocumentPicker, { types } from 'react-native-document-picker';
-import { parseString } from 'xml2js';
+import DocumentPicker from 'react-native-document-picker';
+import getDirections from 'react-native-google-maps-directions';
 import RNFS from 'react-native-fs';
+import { parseString } from 'xml2js';
 
 interface IMarker {
   title: string;
   coordinates: LatLng;
-}
-
-interface IPlacemark {
-  name: string[];
-  Point: [{ coordinates: string[] }];
 }
 
 const OptimizeRouteScreen: React.FC = () => {
@@ -49,7 +45,6 @@ const OptimizeRouteScreen: React.FC = () => {
       });
       const res = results[0];
       
-      // Comprobar la extensión del archivo seleccionado
       if (res.type === 'application/vnd.google-earth.kml+xml') {
         setMapName(res.name?.split('.')[0] || '');
         if (res.uri) {
@@ -60,8 +55,8 @@ const OptimizeRouteScreen: React.FC = () => {
               console.error('Error parsing KML:', err);
               return;
             }
-            const placemarks: IPlacemark[] = result.kml.Document[0].Placemark;
-            const newMarkers: IMarker[] = placemarks.map((placemark: IPlacemark) => {
+            const placemarks = result.kml.Document[0].Placemark;
+            const newMarkers = placemarks.map((placemark) => {
               const name = placemark.name[0];
               const coordinates = placemark.Point[0].coordinates[0].split(',');
               return {
@@ -93,12 +88,28 @@ const OptimizeRouteScreen: React.FC = () => {
       }
     }
   };
-  
 
+  const handleGetDirections = () => {
+    if (markers.length < 2) {
+      Alert.alert('Error', 'At least two waypoints are required.');
+      return;
+    }
 
-  const optimizeRoute = () => {
-    console.log('Optimizar Ruta');
+    const data = {
+      source: markers[0].coordinates,
+      destination: markers[markers.length - 1].coordinates,
+      params: [
+        {
+          key: 'travelmode',
+          value: 'driving',
+        },
+      ],
+      waypoints: markers.slice(1, markers.length - 1).map(marker => marker.coordinates),
+    };
+
+    getDirections(data);
   };
+  
 
   return (
     <View style={styles.container}>
@@ -112,6 +123,7 @@ const OptimizeRouteScreen: React.FC = () => {
       <MapView
         ref={mapRef}
         style={styles.map}
+        initialRegion={currentRegion}
         showsUserLocation={true}
       >
         {markers.map((marker, index) => (
@@ -126,33 +138,33 @@ const OptimizeRouteScreen: React.FC = () => {
       <View style={styles.buttonContainer}>
         <Button title="Cargar Ruta" onPress={selectAndParseKMLFile} />
 
-      <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.aboutUsButton}>
-        <Text style={styles.aboutUsText}>Info</Text>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.aboutUsButton}>
+          <Text style={styles.aboutUsText}>Info</Text>
+        </TouchableOpacity>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.centeredModalView}>
-          <View style={styles.modalView}>
-            <Text style={styles.modalText}>
-              Aquí puedes seleccionar un archivo KML para cargar los marcadores en el mapa.
-              Luego, puedes utilizar la funcionalidad de optimización de ruta.
-            </Text>
-            <TouchableOpacity
-              style={styles.closeModalButton}
-              onPress={() => setModalVisible(false)}
-            >
-              <Text style={styles.closeModalButtonText}>Cerrar</Text>
-            </TouchableOpacity>
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.centeredModalView}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalText}>
+                Aquí puedes seleccionar un archivo KML para cargar los marcadores en el mapa.
+                Luego, puedes utilizar la funcionalidad de optimización de ruta.
+              </Text>
+              <TouchableOpacity
+                style={styles.closeModalButton}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text style={styles.closeModalButtonText}>Cerrar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
+        </Modal>
 
-      <Button title="Optimizar Ruta" onPress={optimizeRoute} />
+        <Button title="Optimizar Ruta" onPress={handleGetDirections} />
       </View>
 
     </View>
