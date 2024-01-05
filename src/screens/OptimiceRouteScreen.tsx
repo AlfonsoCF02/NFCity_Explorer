@@ -1,56 +1,82 @@
-import React from 'react';
-import { View, StyleSheet, Button, Alert } from 'react-native';
-import MapView from 'react-native-maps';
-import DocumentPicker from 'react-native-document-picker';
-import { parseString } from 'react-native-xml2js';
-import RNFS from 'react-native-fs'; // Importa la librería de acceso a sistema de archivos
+import React, { useState } from 'react';
+import { View, Button, StyleSheet, Alert, Platform } from 'react-native';
+import DocumentPicker, { types } from 'react-native-document-picker';
+import { parseString } from 'xml2js';
+import RNFS from 'react-native-fs';
+import { PermissionsAndroid } from 'react-native';
 
-const OptimiceRouteScreen: React.FC = () => {
+const OptimiceRouteScreen = () => {
+  const [fileUri, setFileUri] = useState<string>('');
 
-
-  const kmlData = `<?xml version="1.0" encoding="UTF-8"?>
-  <kml xmlns="http://www.opengis.net/kml/2.2">
-      <Document>
-          <Placemark>
-              <name>Punto 1</name>
-              <Point>
-                  <coordinates>-4.798650965094566,37.89072441711053</coordinates>
-              </Point>
-          </Placemark>
-          <Placemark>
-              <name>Punto 2</name>
-              <Point>
-                  <coordinates>-4.773256480693817,37.88457181120253</coordinates>
-              </Point>
-          </Placemark>
-      </Document>
-  </kml>`;
-  
-  const parseKML = () => {
-    parseString(kmlData, (err, result) => {
-      if (err) {
-        console.error('Error parsing KML:', err);
-        return;
-      }
-  
-      const placemarks = result.kml.Document[0].Placemark;
-      const parsedData = placemarks.map(placemark => {
-        const name = placemark.name[0];
-        const coordinates = placemark.Point[0].coordinates[0].split(',');
-        return {
-          name,
-          latitude: parseFloat(coordinates[1]),
-          longitude: parseFloat(coordinates[0])
-        };
+  const selectKMLFile = async () => {
+    try {
+      // DocumentPickerResponse[] is an array
+      const results = await DocumentPicker.pick({
+        type: [types.allFiles],
       });
-  
-      console.log(parsedData);
-    });
+
+      // Get the first file from the array
+      const res = results[0];
+
+      console.log('File picked:', res);
+
+      if (res && res.uri) {
+        if (Platform.OS === 'android') {
+          const newFilePath = `${RNFS.DocumentDirectoryPath}/${res.name}`;
+          await RNFS.copyFile(res.uri, newFilePath);
+          setFileUri(newFilePath);
+        } else {
+          setFileUri(res.uri);
+        }
+      } else {
+        Alert.alert('Error', 'URI not found in the response');
+      }
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('User cancelled the file picker');
+      } else {
+        console.error('Error picking file:', err);
+        Alert.alert('Error picking file:', err.message);
+      }
+    }
   };
-  
+
+  const parseKML = async () => {
+    if (!fileUri) {
+      Alert.alert('Error', 'No file selected');
+      return;
+    }
+
+    try {
+      const kmlData = await RNFS.readFile(fileUri, 'utf8');
+      parseString(kmlData, (err, result) => {
+        if (err) {
+          console.error('Error parsing KML:', err);
+          return;
+        }
+
+        const placemarks = result.kml.Document[0].Placemark;
+        const parsedData = placemarks.map(placemark => {
+          const name = placemark.name[0];
+          const coordinates = placemark.Point[0].coordinates[0].split(',');
+          return {
+            name,
+            latitude: parseFloat(coordinates[1]),
+            longitude: parseFloat(coordinates[0])
+          };
+        });
+
+        console.log('Parsed data:', parsedData);
+      });
+    } catch (err) {
+      console.error('Error reading file:', err);
+      Alert.alert('Error reading file:', err.message);
+    }
+  };
 
   return (
     <View style={styles.container}>
+      <Button title="Select KML File" onPress={selectKMLFile} />
       <Button title="Parse KML" onPress={parseKML} />
     </View>
   );
@@ -60,8 +86,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
-  }
+    alignItems: 'center',
+  },
 });
 
 export default OptimiceRouteScreen;
