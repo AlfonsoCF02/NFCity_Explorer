@@ -12,6 +12,11 @@ interface IMarker {
   coordinates: LatLng;
 }
 
+interface IPlacemark {
+  name: string[];
+  Point: [{ coordinates: string[] }];
+}
+
 const OptimizeRouteScreen: React.FC = () => {
   const [markers, setMarkers] = useState<IMarker[]>([]);
   const [mapName, setMapName] = useState<string>('');
@@ -55,11 +60,11 @@ const OptimizeRouteScreen: React.FC = () => {
               console.error('Error parsing KML:', err);
               return;
             }
-            const placemarks = result.kml.Document[0].Placemark;
-            const newMarkers = placemarks.map((placemark) => {
-              const name = placemark.name[0];
-              const coordinates = placemark.Point[0].coordinates[0].split(',');
-              return {
+              const placemarks: IPlacemark[] = result.kml.Document[0].Placemark;
+              const newMarkers: IMarker[] = placemarks.map((placemark: IPlacemark) => {
+                const name = placemark.name[0];
+                const coordinates = placemark.Point[0].coordinates[0].split(',');
+                return {
                 title: name,
                 coordinates: {
                   latitude: parseFloat(coordinates[1]),
