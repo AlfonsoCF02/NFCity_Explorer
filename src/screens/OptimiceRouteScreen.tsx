@@ -11,11 +11,16 @@ interface IMarker {
   coordinates: LatLng;
 }
 
+interface IPlacemark {
+  name: string[];
+  Point: [{ coordinates: string[] }];
+}
+
 const OptimizeRouteScreen: React.FC = () => {
   const [markers, setMarkers] = useState<IMarker[]>([]);
   const [mapName, setMapName] = useState<string>('');
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [currentRegion, setCurrentRegion] = useState<MapView.Region | undefined>(undefined);
+  const [currentRegion, setCurrentRegion] = useState<any>(undefined);
   const mapRef = useRef<MapView | null>(null);
 
   useEffect(() => {
@@ -39,48 +44,58 @@ const OptimizeRouteScreen: React.FC = () => {
 
   const selectAndParseKMLFile = async () => {
     try {
-      const results = await DocumentPicker.pick({ type: [types.allFiles] });
+      const results = await DocumentPicker.pick({
+        type: [DocumentPicker.types.allFiles],
+      });
       const res = results[0];
-      setMapName(res.name?.split('.')[0] || '');
-      if (res.uri) {
-        const uri = Platform.OS === 'android' ? `file://${res.uri}` : res.uri;
-        const kmlData = await RNFS.readFile(uri, 'utf8');
-        parseString(kmlData, (err: any, result) => {
-          if (err) {
-            console.error('Error parsing KML:', err);
-            return;
-          }
-          const placemarks = result.kml.Document[0].Placemark;
-          const newMarkers: IMarker[] = placemarks.map(placemark => {
-            const name = placemark.name[0];
-            const coordinates = placemark.Point[0].coordinates[0].split(',');
-            return {
-              title: name,
-              coordinates: {
-                latitude: parseFloat(coordinates[1]),
-                longitude: parseFloat(coordinates[0]),
-              },
-            };
-          });
-          setMarkers(newMarkers);
-          if (newMarkers.length > 0 && mapRef.current) {
-            const coordinates = newMarkers.map(marker => marker.coordinates);
-            mapRef.current.fitToCoordinates(coordinates, {
-              edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-              animated: true,
+      
+      // Comprobar la extensión del archivo seleccionado
+      if (res.type === 'application/vnd.google-earth.kml+xml') {
+        setMapName(res.name?.split('.')[0] || '');
+        if (res.uri) {
+          const uri = Platform.OS === 'android' ? `file://${res.uri}` : res.uri;
+          const kmlData = await RNFS.readFile(uri, 'utf8');
+          parseString(kmlData, (err: any, result) => {
+            if (err) {
+              console.error('Error parsing KML:', err);
+              return;
+            }
+            const placemarks: IPlacemark[] = result.kml.Document[0].Placemark;
+            const newMarkers: IMarker[] = placemarks.map((placemark: IPlacemark) => {
+              const name = placemark.name[0];
+              const coordinates = placemark.Point[0].coordinates[0].split(',');
+              return {
+                title: name,
+                coordinates: {
+                  latitude: parseFloat(coordinates[1]),
+                  longitude: parseFloat(coordinates[0]),
+                },
+              };
             });
-          }
-        });
+            setMarkers(newMarkers);
+            if (newMarkers.length > 0 && mapRef.current) {
+              const coordinates = newMarkers.map(marker => marker.coordinates);
+              mapRef.current.fitToCoordinates(coordinates, {
+                edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+                animated: true,
+              });
+            }
+          });
+        }
       } else {
-        Alert.alert('Error', 'URI no encontrada en la respuesta');
+        Alert.alert('Error', 'Por favor, selecciona un archivo .kml válido.');
       }
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
-        console.error('Error al seleccionar el archivo:', err);
-        Alert.alert('Error al seleccionar el archivo:', err.message);
+        const error = err as Error;
+        console.error('Error al seleccionar el archivo:', error);
+        Alert.alert('Error al seleccionar el archivo:', error.message);
       }
     }
   };
+  
+
+
   const optimizeRoute = () => {
     console.log('Optimizar Ruta');
   };
@@ -206,6 +221,10 @@ const styles = StyleSheet.create({
   closeModalButtonText: {
     color: 'white',
     fontWeight: 'bold',
+    textAlign: 'center',
+  },
+  modalText: {
+    marginBottom: 15,
     textAlign: 'center',
   },
 });
