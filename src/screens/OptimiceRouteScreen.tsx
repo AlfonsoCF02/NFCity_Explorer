@@ -3,9 +3,12 @@ import { View, StyleSheet, Button, Alert, Modal, Text, TextInput, TouchableOpaci
 import MapView, { Marker, LatLng } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import DocumentPicker from 'react-native-document-picker';
+// @ts-ignore
 import getDirections from 'react-native-google-maps-directions';
 import RNFS from 'react-native-fs';
 import { parseString } from 'xml2js';
+import { Picker } from '@react-native-picker/picker';
+
 
 interface IMarker {
   title: string;
@@ -21,8 +24,12 @@ const OptimizeRouteScreen: React.FC = () => {
   const [markers, setMarkers] = useState<IMarker[]>([]);
   const [mapName, setMapName] = useState<string>('');
   const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [startMarker, setStartMarker] = useState<IMarker | null>(null);
+  const [endMarker, setEndMarker] = useState<IMarker | null>(null);
   const [currentRegion, setCurrentRegion] = useState<any>(undefined);
   const mapRef = useRef<MapView | null>(null);
+  const [optimizeModalVisible, setOptimizeModalVisible] = useState<boolean>(false);
+
 
   useEffect(() => {
     getOneTimeLocation();
@@ -95,21 +102,26 @@ const OptimizeRouteScreen: React.FC = () => {
   };
 
   const handleGetDirections = () => {
-    if (markers.length < 2) {
-      Alert.alert('Error', 'At least two waypoints are required.');
+    if (!startMarker || !endMarker) {
+      Alert.alert('Error', 'Por favor, selecciona un marcador de inicio y un marcador de fin.');
       return;
     }
 
+    console.log('Optimizando ruta entre:', startMarker.title, 'y', endMarker.title);
+    // Cerrar el modal después de iniciar la optimización
+    setOptimizeModalVisible(false);
+    // Optimizar la ruta utilizando los marcadores seleccionados
+
     const data = {
-      source: markers[0].coordinates,
-      destination: markers[markers.length - 1].coordinates,
+      source: startMarker.coordinates,
+      destination: endMarker.coordinates,
       params: [
         {
           key: 'travelmode',
           value: 'driving',
         },
       ],
-      waypoints: markers.slice(1, markers.length - 1).map(marker => marker.coordinates),
+      waypoints: markers.map(marker => marker.coordinates), // Incluir todos los marcadores como waypoints
     };
 
     getDirections(data);
@@ -124,7 +136,7 @@ const OptimizeRouteScreen: React.FC = () => {
         editable={false}
         style={styles.mapNameInput}
       />
-
+  
       <MapView
         ref={mapRef}
         style={styles.map}
@@ -139,14 +151,15 @@ const OptimizeRouteScreen: React.FC = () => {
           />
         ))}
       </MapView>
-
+  
       <View style={styles.buttonContainer}>
         <Button title="Cargar Ruta" onPress={selectAndParseKMLFile} />
-
+  
         <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.aboutUsButton}>
           <Text style={styles.aboutUsText}>Info</Text>
         </TouchableOpacity>
-
+  
+        {/* Modal de información */}
         <Modal
           animationType="slide"
           transparent={true}
@@ -168,12 +181,65 @@ const OptimizeRouteScreen: React.FC = () => {
             </View>
           </View>
         </Modal>
+  
+        {/* Modal para optimizar la ruta */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={optimizeModalVisible}
+          onRequestClose={() => setOptimizeModalVisible(false)}
+        >
+          <View style={styles.centeredModalView}>
+            <View style={styles.modalView}>
+              <Text style={styles.modalText}>Selecciona punto de inicio:</Text>
 
-        <Button title="Optimizar Ruta" onPress={handleGetDirections} />
+              <Picker
+                selectedValue={startMarker ? startMarker.title : ''}
+                onValueChange={(itemValue, itemIndex) =>
+                  setStartMarker(markers.find(marker => marker.title === itemValue) || null)
+                }
+                style={styles.picker}
+              >
+                {markers.map((marker, index) => (
+                  <Picker.Item key={index} label={marker.title} value={marker.title} />
+                ))}
+              </Picker>
+  
+              <Text style={styles.modalText}>Selecciona punto final:</Text>
+
+              <Picker
+                selectedValue={endMarker ? endMarker.title : ''}
+                onValueChange={(itemValue, itemIndex) =>
+                  setEndMarker(markers.find(marker => marker.title === itemValue) || null)
+                }
+                style={styles.picker}
+              >
+                {markers.map((marker, index) => (
+                  <Picker.Item key={index} label={marker.title} value={marker.title} />
+                ))}
+              </Picker>
+
+
+  
+              {/* Botón de cierre con una X en la esquina */}
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setOptimizeModalVisible(false)}
+              >
+                <Text style={styles.closeButtonText}>X</Text>
+              </TouchableOpacity>
+
+              <Button title="Optimizar Ruta" onPress={handleGetDirections} />
+            </View>
+          </View>
+        </Modal>
+  
+        <Button title="Optimizar Ruta" onPress={() => setOptimizeModalVisible(true)} />
       </View>
-
+  
     </View>
   );
+  
 };
 
 const styles = StyleSheet.create({
@@ -244,6 +310,27 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     textAlign: 'center',
   },
+  closeButton: {
+    position: 'absolute',
+    top: -10,
+    right: 10,
+    backgroundColor: 'lightgrey',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: 'black',
+    fontWeight: 'bold',
+  },
+  picker: {
+  width: '100%', // o el ancho que necesites
+  height: 70, // o la altura que necesites
+  // ...otros estilos que necesites para el Picker
+},
 });
+
 
 export default OptimizeRouteScreen;
