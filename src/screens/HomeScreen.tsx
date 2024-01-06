@@ -91,6 +91,10 @@ const HomeScreen: React.FC<{ navigation: HomeScreenNavigationProp }> = ({ naviga
     }
   };
   
+  const handlePressPredefinedRoute = (routeName: string) => {
+    navigation.navigate('OptimiceRoute', { routeName });
+  };
+  
 
   return (
     <View style={styles.container}>
@@ -117,9 +121,9 @@ const HomeScreen: React.FC<{ navigation: HomeScreenNavigationProp }> = ({ naviga
 
       <View style={styles.predefinedRoutesContainer}>
       <Text style={styles.welcomeText}>En base a tu ubicación te recomendamos las siguentes rutas predefinidas:</Text>
-        <Button title="Granada" onPress={() => console.log('Ruta Granada')} />
-        <Button title="Málaga" onPress={() => console.log('Ruta Málaga')} />
-        <Button title="Barcelona" onPress={() => console.log('Ruta Barcelona')} />
+        <Button title="Granada" onPress={() => handlePressPredefinedRoute('Granada')} />
+        <Button title="Málaga" onPress={() => handlePressPredefinedRoute('Malaga')} />
+        <Button title="Barcelona" onPress={() => handlePressPredefinedRoute('Barcelona')} />
       </View>
 
       <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.aboutUsButton}>

@@ -8,6 +8,8 @@ import getDirections from 'react-native-google-maps-directions';
 import RNFS from 'react-native-fs';
 import { parseString } from 'xml2js';
 import { Picker } from '@react-native-picker/picker';
+import { useRoute, RouteProp } from '@react-navigation/native';
+import { MalagaKML, GranadaKML } from '../data/RutasPredefinidas';
 
 
 interface IMarker {
@@ -30,14 +32,56 @@ const OptimizeRouteScreen: React.FC = () => {
   const [currentRegion, setCurrentRegion] = useState<any>(undefined);
   const mapRef = useRef<MapView | null>(null);
   const [optimizeModalVisible, setOptimizeModalVisible] = useState<boolean>(false);
-    // Utiliza el título del marcador para el valor del Picker
   const [selectedStartMarkerTitle, setSelectedStartMarkerTitle] = useState('');
   const [selectedEndMarkerTitle, setSelectedEndMarkerTitle] = useState('');
-
+  const route = useRoute<RouteProp<{ params: { routeName: string } }, 'params'>>();
+  const routeName = route.params?.routeName;
 
   useEffect(() => {
-    getOneTimeLocation();
-  }, []);
+    if (routeName) {
+      let kmlData = '';
+      if (routeName === 'Malaga') {
+        kmlData = MalagaKML;
+      } else if (routeName === 'Granada') {
+        kmlData = GranadaKML;
+      }
+      // Aquí puedes agregar más condiciones para otras rutas predefinidas
+      parsePredefinedKML(kmlData);
+    } else {
+      getOneTimeLocation();
+    }
+  }, [routeName]);
+
+
+  const parsePredefinedKML = (kmlString: string) => {
+    parseString(kmlString, (err: any, result) => {
+      if (err) {
+        console.error('Error parsing KML:', err);
+        return;
+      }
+        const placemarks: IPlacemark[] = result.kml.Document[0].Placemark;
+        const newMarkers: IMarker[] = placemarks.map((placemark: IPlacemark) => {
+          const name = placemark.name[0];
+          const coordinates = placemark.Point[0].coordinates[0].split(',');
+          return {
+          title: name,
+          coordinates: {
+            latitude: parseFloat(coordinates[1]),
+            longitude: parseFloat(coordinates[0]),
+          },
+        };
+      });
+      setMarkers(newMarkers);
+      //console.log(newMarkers); // Esto te mostrará la lista de marcadores en la consola
+      if (newMarkers.length > 0 && mapRef.current) {
+        const coordinates = newMarkers.map(marker => marker.coordinates);
+        mapRef.current.fitToCoordinates(coordinates, {
+          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+          animated: true,
+        });
+      }
+    });
+  };
 
   const getOneTimeLocation = () => {
     Geolocation.getCurrentPosition(

@@ -7,7 +7,7 @@ export type RootStackParamList = {
   Home: undefined;
   Map: undefined;
   CreateRoute: undefined;
-  OptimiceRoute: undefined;
+  OptimiceRoute: any;
   // ... otros nombres de rutas y parámetros ...
 };
 
