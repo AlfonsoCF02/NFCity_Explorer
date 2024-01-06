@@ -9,7 +9,7 @@ import RNFS from 'react-native-fs';
 import { parseString } from 'xml2js';
 import { Picker } from '@react-native-picker/picker';
 import { useRoute, RouteProp } from '@react-navigation/native';
-import { MalagaKML, GranadaKML } from '../data/RutasPredefinidas';
+import { MalagaKML, GranadaKML, BarcelonaKML } from '../data/RutasPredefinidas';
 
 
 interface IMarker {
@@ -44,7 +44,9 @@ const OptimizeRouteScreen: React.FC = () => {
         kmlData = MalagaKML;
       } else if (routeName === 'Granada') {
         kmlData = GranadaKML;
-      }
+      } else if (routeName === 'Barcelona'){
+        kmlData = BarcelonaKML;
+      }      
       // Aquí puedes agregar más condiciones para otras rutas predefinidas
       parsePredefinedKML(kmlData);
     } else {
