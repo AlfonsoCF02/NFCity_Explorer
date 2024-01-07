@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Button, Alert, Modal, Text, TextInput, TouchableOpacity, Platform } from 'react-native';
-import MapView, { Marker, LatLng } from 'react-native-maps';
+import MapView, { Marker, LatLng, Polyline } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import DocumentPicker from 'react-native-document-picker';
 // @ts-ignore
@@ -10,6 +10,8 @@ import { parseString } from 'xml2js';
 import { Picker } from '@react-native-picker/picker';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { MalagaKML, GranadaKML, BarcelonaKML } from '../data/RutasPredefinidas';
+import polyline from '@mapbox/polyline';
+import Config from 'react-native-config';
 
 
 interface IMarker {
@@ -36,6 +38,7 @@ const OptimizeRouteScreen: React.FC = () => {
   const [selectedEndMarkerTitle, setSelectedEndMarkerTitle] = useState('');
   const route = useRoute<RouteProp<{ params: { routeName: string } }, 'params'>>();
   const routeName = route.params?.routeName;
+  const [routePolyline, setRoutePolyline] = useState([]);
 
   useEffect(() => {
     if (routeName) {
@@ -98,6 +101,19 @@ const OptimizeRouteScreen: React.FC = () => {
       error => Alert.alert('Error', 'No se pudo obtener la ubicación'),
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
     );
+  };
+
+  const clearRoute = () => {
+    setMarkers([]);         // Limpia los marcadores actuales
+    setRoutePolyline([]);   // Limpia la polilínea actual
+  };
+
+  const drawRoute = (points) => {
+    const route = polyline.decode(points);
+    const routeCoords = route.map(point => {
+      return { latitude: point[0], longitude: point[1] };
+    });
+    setRoutePolyline(routeCoords);
   };
 
   const selectAndParseKMLFile = async () => {
@@ -206,6 +222,62 @@ const OptimizeRouteScreen: React.FC = () => {
     setSelectedEndMarkerTitle(itemValue);
   };
 
+  const getAndDrawRoute = async () => {
+    if (!startMarker || !endMarker) {
+      Alert.alert('Error', 'Por favor, selecciona un marcador de inicio y un marcador de fin.');
+      return;
+    }
+
+    const origin = `${startMarker.coordinates.latitude},${startMarker.coordinates.longitude}`;
+    const destination = `${endMarker.coordinates.latitude},${endMarker.coordinates.longitude}`;
+    const waypoints = markers.map(marker => `${marker.coordinates.latitude},${marker.coordinates.longitude}`).join('|');
+
+    try {
+      const apiKey = Config.GOOGLE_MAPS_API_KEY;
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&waypoints=optimize:true|${waypoints}&key=AIzaSyD-Q9-ylOL8ntFEjTsngWa_F5_l3tj_-Bw`
+      );
+      const json = await response.json();
+      if (json.routes.length) {
+        const points = polyline.decode(json.routes[0].overview_polyline.points);
+        const coords = points.map((point) => {
+          return { latitude: point[0], longitude: point[1] };
+        });
+        setRoutePolyline(coords);
+      }
+    } catch (error) {
+      console.error('Error al obtener la ruta:', error);
+      Alert.alert('Error', 'No se pudo obtener la ruta');
+    }
+  };
+
+  // Modificación en el evento del botón 'Optimizar Ruta'
+  const handleOptimizeButtonnPress = async () => {
+    if (markers.length === 0) {
+      Alert.alert('Carga una ruta', 'Para poder optimizar una ruta primero debes cargarla.');
+    } else {
+      // Cierra el modal de selección de origen y destino
+      setOptimizeModalVisible(false);
+  
+      // Asegúrate de que tienes marcadores de inicio y fin seleccionados
+      if (!startMarker || !endMarker) {
+        Alert.alert('Error', 'Por favor, selecciona un marcador de inicio y un marcador de fin.');
+        return;
+      }
+  
+      // Obtén y dibuja la ruta optimizada en el mapa
+      await getAndDrawRoute();
+  
+      // Ajusta el mapa para mostrar la ruta completa
+      if (routePolyline.length > 0 && mapRef.current) {
+        mapRef.current.fitToCoordinates(routePolyline, {
+          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+          animated: true,
+        });
+      }
+    }
+  };
+
   return (
     <View style={styles.container}>
       <TextInput
@@ -215,20 +287,27 @@ const OptimizeRouteScreen: React.FC = () => {
         style={styles.mapNameInput}
       />
   
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        initialRegion={currentRegion}
-        showsUserLocation={true}
-      >
-        {markers.map((marker, index) => (
-          <Marker
-            key={index}
-            coordinate={marker.coordinates}
-            title={marker.title}
-          />
-        ))}
-      </MapView>
+  <MapView
+      ref={mapRef}
+      style={styles.map}
+      initialRegion={currentRegion}
+      showsUserLocation={true}
+    >
+      {markers.map((marker, index) => (
+        <Marker
+          key={index}
+          coordinate={marker.coordinates}
+          title={marker.title}
+        />
+      ))}
+      {routePolyline.length > 0 && (
+        <Polyline
+          coordinates={routePolyline}
+          strokeColor="#0000FF" // azul
+          strokeWidth={3}
+        />
+      )}
+    </MapView>
   
       <View style={styles.buttonContainer}>
         <Button title="Cargar Ruta" onPress={selectAndParseKMLFile} />
@@ -310,7 +389,11 @@ const OptimizeRouteScreen: React.FC = () => {
             onPress={handleGetDirections}
             color={markers.length > 9 ? "gray" : "#2196F3"}
           />
-          <Button title="Optimizar Ruta" onPress={() => console.log("Optimizador normal")} />
+          <Button
+          title="Optimizar Ruta"
+          onPress={handleOptimizeButtonnPress}
+          color={markers.length === 0 ? "gray" : "#2196F3"}
+        />
 
             {/* Modal de información */}
 
