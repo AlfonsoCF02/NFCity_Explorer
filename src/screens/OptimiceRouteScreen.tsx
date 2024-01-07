@@ -83,13 +83,16 @@ const OptimizeRouteScreen: React.FC = () => {
         };
       });
       setMarkers(newMarkers);
+      setMapName(routeName);
       //console.log(newMarkers); // Esto te mostrará la lista de marcadores en la consola
-      if (newMarkers.length > 0 && mapRef.current) {
-        const coordinates = newMarkers.map(marker => marker.coordinates);
-        mapRef.current.fitToCoordinates(coordinates, {
-          edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
-          animated: true,
-        });
+      if (newMarkers.length > 0) {
+        // Actualizar el estado con un ligero retraso para garantizar que el mapa esté listo
+        setTimeout(() => {
+          mapRef.current?.fitToCoordinates(newMarkers.map(marker => marker.coordinates), {
+            edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+            animated: true,
+          });
+        }, 700); // Puedes ajustar este tiempo si es necesario
       }
     });
   };
@@ -305,6 +308,7 @@ const OptimizeRouteScreen: React.FC = () => {
    ref={mapRef}
    style={styles.map}
    initialRegion={currentRegion}
+   region={currentRegion}
    showsUserLocation={true}
  >
 {markers.map((marker, index) => (
