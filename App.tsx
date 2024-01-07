@@ -14,7 +14,6 @@ const nfcData: NfcData = rawData as NfcData;
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
 
-/*  COMO NO FUNCIONA EL NFC EN EL EMULADOR COMENTAR
 
   useEffect(() => {
     async function initNfc() {
@@ -68,7 +67,6 @@ const App = () => {
     };
   }, []);
 
-*/
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: isDarkMode ? '#333' : '#FFF' }}>
