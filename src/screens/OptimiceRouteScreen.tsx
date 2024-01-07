@@ -10,7 +10,7 @@ import { Picker } from '@react-native-picker/picker';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import polyline from '@mapbox/polyline';
 import Config from 'react-native-config';
-import { MalagaKML, GranadaKML, BarcelonaKML } from '../data/RutasPredefinidas';
+import { MalagaKML, GranadaKML, BarcelonaKML } from '../data/PredefinedRoutes';
 import { IMarker, IPlacemark, Coordinate } from '../types/navigationTypes'; 
 
 const OptimizeRouteScreen: React.FC = () => {
