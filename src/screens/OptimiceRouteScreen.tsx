@@ -253,9 +253,13 @@ const OptimizeRouteScreen: React.FC = () => {
 
   // Modificación en el evento del botón 'Optimizar Ruta'
   const handleOptimizeButtonnPress = async () => {
-    if (markers.length === 0) {
-      Alert.alert('Carga una ruta', 'Para poder optimizar una ruta primero debes cargarla.');
-    } else {
+
+    //Para usarlo con MAPS maximo 9 ubicaciones
+    if (markers.length > 23) {
+      Alert.alert('Demasiados marcadores', 'Nuestro software no puede optimizar mas de 23 puntos.');
+      return;
+    }
+    else {
       // Cierra el modal de selección de origen y destino
       setOptimizeModalVisible(false);
   
@@ -392,7 +396,7 @@ const OptimizeRouteScreen: React.FC = () => {
           <Button
           title="Optimizar Ruta"
           onPress={handleOptimizeButtonnPress}
-          color={markers.length === 0 ? "gray" : "#2196F3"}
+          color={markers.length > 23 ? "gray" : "#2196F3"}
         />
 
             {/* Modal de información */}
