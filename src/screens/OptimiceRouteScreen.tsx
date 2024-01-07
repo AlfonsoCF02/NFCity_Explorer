@@ -24,6 +24,7 @@ interface IPlacemark {
   Point: [{ coordinates: string[] }];
 }
 
+
 const OptimizeRouteScreen: React.FC = () => {
   const [markers, setMarkers] = useState<IMarker[]>([]);
   const [mapName, setMapName] = useState<string>('');
@@ -59,6 +60,7 @@ const OptimizeRouteScreen: React.FC = () => {
 
 
   const parsePredefinedKML = (kmlString: string) => {
+    resetMap(); // Llama a resetMap antes de parsear una nueva ruta
     parseString(kmlString, (err: any, result) => {
       if (err) {
         console.error('Error parsing KML:', err);
@@ -103,9 +105,13 @@ const OptimizeRouteScreen: React.FC = () => {
     );
   };
 
-  const clearRoute = () => {
-    setMarkers([]);         // Limpia los marcadores actuales
-    setRoutePolyline([]);   // Limpia la polilínea actual
+  const resetMap = () => {
+    setMarkers([]); // Limpia los marcadores
+    setMapName(''); // Reinicia el nombre de la ruta
+    setCurrentRegion(undefined); // Reinicia la región actual
+    setRoutePolyline([]); // Limpia la polilínea de la ruta
+    // Reinicia cualquier otro estado que necesites aquí
+    // ...
   };
 
   const drawRoute = (points) => {
@@ -117,6 +123,7 @@ const OptimizeRouteScreen: React.FC = () => {
   };
 
   const selectAndParseKMLFile = async () => {
+    resetMap(); // Llama a resetMap antes de parsear una nueva ruta
     try {
       const results = await DocumentPicker.pick({
         type: [DocumentPicker.types.allFiles],
