@@ -65,6 +65,10 @@ const LoginScreen: React.FC<{ navigation: LoginScreenNavigationProp }> = ({ navi
           </View>
         </View>
       </Modal>
+
+      {/* Texto de derechos reservados */}
+      <Text style={styles.rightsText}>Todos los derechos reservados ©</Text>
+
     </SafeAreaView>
   );
 };
@@ -130,6 +134,12 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
+  },
+  rightsText: {
+    position: 'absolute',
+    bottom: 10, // Ajusta la posición desde la parte inferior
+    color: 'grey', // Color del texto
+    fontSize: 12, // Tamaño del texto
   },
 });
 
