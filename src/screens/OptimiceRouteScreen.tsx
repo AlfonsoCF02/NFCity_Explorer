@@ -249,7 +249,7 @@ const OptimizeRouteScreen: React.FC = () => {
     try {
       const apiKey = Config.GOOGLE_MAPS_API_KEY;
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&waypoints=optimize:true|${waypoints}&key=AIzaSyD-Q9-ylOL8ntFEjTsngWa_F5_l3tj_-Bw`
+        `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&waypoints=optimize:true|${waypoints}&mode=walking&key=AIzaSyD-Q9-ylOL8ntFEjTsngWa_F5_l3tj_-Bw`
       );
       const json = await response.json();
       if (json.routes.length) {
