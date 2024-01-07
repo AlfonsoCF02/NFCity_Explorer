@@ -203,7 +203,7 @@ const OptimizeRouteScreen: React.FC = () => {
       params: [
         {
           key: 'travelmode',
-          value: 'driving',
+          value: 'walking',
         },
       ],
       waypoints: markers.map(marker => marker.coordinates), // Incluir todos los marcadores como waypoints
@@ -307,18 +307,24 @@ const OptimizeRouteScreen: React.FC = () => {
    initialRegion={currentRegion}
    showsUserLocation={true}
  >
-   {markers.map((marker, index) => (
-     <Marker
-       key={index}
-       coordinate={marker.coordinates}
-       title={marker.title}
-     >
-       {/* Personalización del marcador */}
-       {/*<View style={styles.customMarker}>
-         <Text style={styles.markerText}>{index + 1}</Text>
-       </View>*/}
-     </Marker>
-   ))}
+{markers.map((marker, index) => (
+  <Marker
+    key={index}
+    coordinate={marker.coordinates}
+    title={marker.title}
+  >
+    {(marker.title === startMarker?.title || marker.title === endMarker?.title) ? (
+      <View style={marker.title === startMarker?.title ? styles.originMarker : styles.destinationMarker}>
+        <Text style={styles.markerText}>
+          {marker.title === startMarker?.title ? 'Origen' : 'Destino'}
+        </Text>
+      </View>
+    ) : (
+      // Si no necesitas un estilo personalizado, simplemente no renderices nada aquí
+      null
+    )}
+  </Marker>
+))}
    {routePolyline.length > 0 && (
      <Polyline
        coordinates={routePolyline}
@@ -612,7 +618,26 @@ const styles = StyleSheet.create({
   markerText: {
     color: '#fff', // Color del texto
     fontWeight: 'bold', // Negrita
-  },  
+  },
+
+  originMarker: {
+    backgroundColor: "#32CD32", // Color verde para el marcador de origen
+    padding: 6,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: 'white',
+    borderWidth: 2,
+  },
+  destinationMarker: {
+    backgroundColor: "#FF4500", // Color naranja para el marcador de destino
+    padding: 6,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderColor: 'white',
+    borderWidth: 2,
+  },
 });
 
 
