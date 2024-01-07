@@ -301,28 +301,32 @@ const OptimizeRouteScreen: React.FC = () => {
         editable={false}
         style={styles.mapNameInput}
       />
-  
-  <MapView
-      ref={mapRef}
-      style={styles.map}
-      initialRegion={currentRegion}
-      showsUserLocation={true}
-    >
-      {markers.map((marker, index) => (
-        <Marker
-          key={index}
-          coordinate={marker.coordinates}
-          title={marker.title}
-        />
-      ))}
-      {routePolyline.length > 0 && (
-        <Polyline
-          coordinates={routePolyline}
-          strokeColor="#0000FF" // azul
-          strokeWidth={3}
-        />
-      )}
-    </MapView>
+<MapView
+   ref={mapRef}
+   style={styles.map}
+   initialRegion={currentRegion}
+   showsUserLocation={true}
+ >
+   {markers.map((marker, index) => (
+     <Marker
+       key={index}
+       coordinate={marker.coordinates}
+       title={marker.title}
+     >
+       {/* Personalización del marcador */}
+       {/*<View style={styles.customMarker}>
+         <Text style={styles.markerText}>{index + 1}</Text>
+       </View>*/}
+     </Marker>
+   ))}
+   {routePolyline.length > 0 && (
+     <Polyline
+       coordinates={routePolyline}
+       strokeColor="#0000FF" // azul
+       strokeWidth={3}
+     />
+   )}
+ </MapView>
   
       <View style={styles.buttonContainer}>
         <Button title="Cargar Ruta" onPress={selectAndParseKMLFile} />
@@ -598,6 +602,17 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontWeight: 'bold',
   },
+  customMarker: {
+    backgroundColor: "#007bff", // Color de fondo
+    padding: 5, // Espaciado interno
+    borderRadius: 20, // Bordes redondeados
+    alignItems: 'center', // Centrar horizontalmente
+    justifyContent: 'center', // Centrar verticalmente
+  },
+  markerText: {
+    color: '#fff', // Color del texto
+    fontWeight: 'bold', // Negrita
+  },  
 });
 
 
