@@ -3,31 +3,15 @@ import { View, StyleSheet, Button, Alert, Modal, Text, TextInput, TouchableOpaci
 import MapView, { Marker, LatLng, Polyline } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import DocumentPicker from 'react-native-document-picker';
-// @ts-ignore
 import getDirections from 'react-native-google-maps-directions';
 import RNFS from 'react-native-fs';
 import { parseString } from 'xml2js';
 import { Picker } from '@react-native-picker/picker';
 import { useRoute, RouteProp } from '@react-navigation/native';
-import { MalagaKML, GranadaKML, BarcelonaKML } from '../data/RutasPredefinidas';
 import polyline from '@mapbox/polyline';
 import Config from 'react-native-config';
-
-
-interface IMarker {
-  title: string;
-  coordinates: LatLng;
-}
-
-interface IPlacemark {
-  name: string[];
-  Point: [{ coordinates: string[] }];
-}
-
-interface Coordinate {
-  latitude: number;
-  longitude: number;
-}
+import { MalagaKML, GranadaKML, BarcelonaKML } from '../data/RutasPredefinidas';
+import { IMarker, IPlacemark, Coordinate } from '../types/navigationTypes'; 
 
 const OptimizeRouteScreen: React.FC = () => {
   const [markers, setMarkers] = useState<IMarker[]>([]);
