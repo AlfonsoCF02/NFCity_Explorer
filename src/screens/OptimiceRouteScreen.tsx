@@ -361,6 +361,7 @@ const OptimizeRouteScreen: React.FC = () => {
             }
             style={styles.picker}
           >
+            <Picker.Item label="Despliegame" value="" />
             {markers.map((marker, index) => (
               <Picker.Item key={index} label={marker.title} value={marker.title} />
             ))}
@@ -375,6 +376,7 @@ const OptimizeRouteScreen: React.FC = () => {
             }
             style={styles.picker}
           >
+            <Picker.Item label="Despliegame" value="" />
             {markers.map((marker, index) => (
               <Picker.Item key={index} label={marker.title} value={marker.title} />
             ))}
