@@ -24,6 +24,10 @@ interface IPlacemark {
   Point: [{ coordinates: string[] }];
 }
 
+interface Coordinate {
+  latitude: number;
+  longitude: number;
+}
 
 const OptimizeRouteScreen: React.FC = () => {
   const [markers, setMarkers] = useState<IMarker[]>([]);
@@ -39,7 +43,7 @@ const OptimizeRouteScreen: React.FC = () => {
   const [selectedEndMarkerTitle, setSelectedEndMarkerTitle] = useState('');
   const route = useRoute<RouteProp<{ params: { routeName: string } }, 'params'>>();
   const routeName = route.params?.routeName;
-  const [routePolyline, setRoutePolyline] = useState([]);
+  const [routePolyline, setRoutePolyline] = useState<Coordinate[]>([]);
 
   useEffect(() => {
     if (routeName) {
@@ -114,7 +118,7 @@ const OptimizeRouteScreen: React.FC = () => {
     // ...
   };
 
-  const drawRoute = (points) => {
+  const drawRoute = (points : any) => {
     const route = polyline.decode(points);
     const routeCoords = route.map(point => {
       return { latitude: point[0], longitude: point[1] };
