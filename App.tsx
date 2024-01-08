@@ -16,6 +16,22 @@ const App = () => {
     async function initNfc() {
       const supported = await NfcManager.isSupported();
       if (supported) {
+        const enabled = await NfcManager.isEnabled();
+        if (!enabled) {
+          // NFC está soportado pero no activado
+          Alert.alert(
+            "NFC is not enabled",
+            "Please enable NFC to use this application.",
+            [
+              // Opcionalmente, puedes dirigir al usuario a la configuración de NFC
+              { text: "Go to Settings", onPress: () => NfcManager.goToNfcSetting() },
+              { text: "OK" }
+            ]
+          );
+        } else {
+          // NFC está activado y listo para usarse
+          NfcManager.start();
+        }
         await NfcManager.start();
         // Escuchar continuamente los tags NFC
         NfcManager.setEventListener(NfcEvents.DiscoverTag, handleNfcRead);
